@@ -1,0 +1,14 @@
+{
+  "type": "module",
+  "scripts": {
+    "start": "node -r module-alias/register index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "module-alias": "^2.2.3"
+  },
+  "_moduleAliases": {
+    "@model": "./model",
+    "@constants": "./constants"
+  }
+}
