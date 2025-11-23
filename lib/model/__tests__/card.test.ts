@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import Card from '../card.js';
-import Stage from '../stage.js';
+import Card from '../card';
+import Stage from '../stage';
 
 // Create a concrete implementation of Card for testing
 class TestCard extends Card {

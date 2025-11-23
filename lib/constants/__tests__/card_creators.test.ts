@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import cardCreators from '../card_creators.js';
-import NumCard from '../../model/num_card.js';
-import SpecialCard from '../../model/special_card.js';
-import Card from '../../model/card.js';
+import cardCreators from '../card_creators';
+import NumCard from '../../model/num_card';
+import SpecialCard from '../../model/special_card';
+import Card from '../../model/card';
 
 describe('cardCreators', () => {
   it('should export an array of creator functions', () => {

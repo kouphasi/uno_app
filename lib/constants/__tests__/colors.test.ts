@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import colors from '../colors.js';
-import Color from '../../model/color.js';
+import colors from '../colors';
+import Color from '../../model/color';
 
 describe('colors', () => {
   it('should export an array of 4 colors', () => {

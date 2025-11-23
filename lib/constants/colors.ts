@@ -1,4 +1,4 @@
-import Color from '../model/color.js';
+import Color from '../model/color';
 
 const colors = [
   new Color({name: 'red', code: '#ff0000'}),

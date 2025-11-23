@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import Stage from '../model/stage.js';
-import Player from '../model/player.js';
-import NumCard from '../model/num_card.js';
-import SpecialCard from '../model/special_card.js';
-import Color from '../model/color.js';
+import Stage from '../model/stage';
+import Player from '../model/player';
+import NumCard from '../model/num_card';
+import SpecialCard from '../model/special_card';
+import Color from '../model/color';
 
 describe('UNO Game Integration Tests', () => {
   let stage: Stage;

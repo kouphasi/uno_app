@@ -1,5 +1,5 @@
-import Stage from './stage.js';
-import Color from './color.js';
+import Stage from './stage';
+import Color from './color';
 
 abstract class Card {
   name: string = '';

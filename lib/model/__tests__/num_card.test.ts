@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import NumCard from '../num_card.js';
-import Color from '../color.js';
-import Stage from '../stage.js';
+import NumCard from '../num_card';
+import Color from '../color';
+import Stage from '../stage';
 
 describe('NumCard', () => {
   const red = new Color({ name: 'red', code: '#ff0000' });

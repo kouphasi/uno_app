@@ -1,8 +1,8 @@
 
-import cardCreators from '../constants/card_creators.js';
-import Card from './card.js';
-import Color from './color.js';
-import Player from './player.js';
+import cardCreators from '../constants/card_creators';
+import Card from './card';
+import Color from './color';
+import Player from './player';
 
 class Stage {
   players: Player[] = [];
