@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import Player from '../player.js';
-import NumCard from '../num_card.js';
-import Color from '../color.js';
-import Stage from '../stage.js';
+import Player from '../player';
+import NumCard from '../num_card';
+import Color from '../color';
+import Stage from '../stage';
 
 describe('Player', () => {
   let player: Player;

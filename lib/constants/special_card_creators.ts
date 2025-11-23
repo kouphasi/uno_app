@@ -1,7 +1,7 @@
 
-import SpecialCard from '../model/special_card.js';
-import colors from './colors.js';
-import Stage from '../model/stage.js';
+import SpecialCard from '../model/special_card';
+import colors from './colors';
+import Stage from '../model/stage';
 
 //reverse
 const reverseEffect = (stage: Stage) => stage.reverse();

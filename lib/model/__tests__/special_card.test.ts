@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
-import SpecialCard from '../special_card.js';
-import Color from '../color.js';
-import Stage from '../stage.js';
+import SpecialCard from '../special_card';
+import Color from '../color';
+import Stage from '../stage';
 
 describe('SpecialCard', () => {
   const red = new Color({ name: 'red', code: '#ff0000' });

@@ -1,8 +1,8 @@
 
 
-import NumCard from '../model/num_card.js';
-import specialCardCreators from './special_card_creators.js';
-import colors from './colors.js';
+import NumCard from '../model/num_card';
+import specialCardCreators from './special_card_creators';
+import colors from './colors';
 
 const availableNumbers = Array.from({length: 10}, (_, i) => i);
 

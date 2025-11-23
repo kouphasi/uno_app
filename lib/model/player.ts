@@ -1,7 +1,7 @@
-import colors from '../constants/colors.js';
-import Card from './card.js';
-import Color from './color.js';
-import Stage from './stage.js';
+import colors from '../constants/colors';
+import Card from './card';
+import Color from './color';
+import Stage from './stage';
 
 class Player {
   name: string;
