@@ -1,38 +1,43 @@
 import colors from '../constants/colors.js';
+import Card from './card.js';
+import Color from './color.js';
+import Stage from './stage.js';
 
 class Player {
-  cards = [];
-  isUno = false;
-  constructor(name) {
+  name: string;
+  cards: Card[] = [];
+  isUno: boolean = false;
+
+  constructor(name: string) {
     this.name = name;
   }
 
-  get cardCount() {
+  get cardCount(): number {
     return this.cards.length;
   }
 
-  getCards(cards) {
+  getCards(cards: Card[]): void {
     this.cards = [...this.cards, ...cards];
   }
 
-  getCard(card) {
+  getCard(card: Card): void {
     console.log(`${this.name} got ${card.name}`);
     this.cards.push(card);
     this.isUno = false;
   }
 
-  sayUno() {
+  sayUno(): void {
     this.isUno = Math.random() < 0.5;
     if(this.isUno) {
       console.log(`${this.name} said UNO!`);
     }
   }
 
-  canPutCards(stage) {
+  canPutCards(stage: Stage): Card[] {
     return this.cards.filter(card => card.canPut(stage));
   }
 
-  selectCard(stage) {
+  selectCard(stage: Stage): Card | null {
     const cards = this.canPutCards(stage);
     if(cards.length === 0) {
       return null;
@@ -43,12 +48,12 @@ class Player {
     // return Math.floor(Math.random() * this.cards.length);
   }
 
-  selectColor() {
+  selectColor(): Color {
     // Color Selection Logic
     return colors[Math.floor(Math.random() * colors.length)];
   }
 
-  putCard(stage) {
+  putCard(stage: Stage): Card | null {
     const card = this.selectCard(stage);
     console.log(`${this.name} put ${card?.name}`);
     if(card === null) {

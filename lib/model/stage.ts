@@ -1,105 +1,109 @@
 
 import cardCreators from '../constants/card_creators.js';
+import Card from './card.js';
+import Color from './color.js';
+import Player from './player.js';
 
 class Stage {
-  players = [];
-  turn = 1;
-  currentPlayerIndex = 0;
-  fieldCards = [];
-  isOpposite = false;
-  finishedPlayers = [];
-  num = 0;
-  color = null;
+  players: Player[] = [];
+  turn: number = 1;
+  currentPlayerIndex: number = 0;
+  fieldCards: Card[] = [];
+  isOpposite: boolean = false;
+  finishedPlayers: Player[] = [];
+  num: number = 0;
+  color: Color | null = null;
+  drawNum: number = 0;
 
-  constructor(players) {
+  constructor(players: Player[]) {
     this.players = players;
   }
 
-  get playablePlayers() {
+  get playablePlayers(): Player[] {
     return this.players.filter(player => !this.finishedPlayers.includes(player));
   }
 
-  get currentPlayer() {
+  get currentPlayer(): Player {
     return this.getPlayer(this.playerIndex(this.currentPlayerIndex));
   }
 
-  get previousPlayer() {
+  get previousPlayer(): Player {
     const previousIndex = this.currentPlayerIndex - (this.isOpposite ? -1 : 1);
     return this.getPlayer(this.playerIndex(this.currentPlayerIndex - 1));
   }
 
-  getPlayer(index) {
+  getPlayer(index: number): Player {
     return this.playablePlayers[index];
   }
 
-  playerIndex(index) {
+  playerIndex(index: number): number {
     const playerCount = this.playablePlayers.length;
     return index % playerCount < 0
       ? index % playerCount + playerCount
       : index % playerCount;
   }
 
-  get latestCard() {
+  get latestCard(): Card {
     return this.fieldCards[this.fieldCards.length - 1];
   }
 
-  finishPlayer(player) {
+  finishPlayer(player: Player): void {
     this.finishedPlayers.push(player);
   }
 
-  nextPlayerIndex(step=1) {
+  nextPlayerIndex(step: number = 1): void {
     this.currentPlayerIndex = this.currentPlayerIndex + (this.isOpposite ? -step : step);
   }
 
-  draw() {
+  draw(): Card {
     console.log('draw');
     return cardCreators[Math.floor(Math.random() * cardCreators.length)]();
   }
 
-  reverse() {
+  reverse(): void {
     this.isOpposite = !this.isOpposite;
   }
 
-  setColor(color) {
+  setColor(color: Color | null): void {
     this.color = color;
   }
 
-  setNum(num) {
-    this.num = num;
+  setNum(num: number | null): void {
+    this.num = num ?? 0;
   }
 
-  addDrawNum(drawNum) {
+  addDrawNum(drawNum: number): void {
     this.drawNum += drawNum;
   }
 
-  resetDrawNum() {
+  resetDrawNum(): void {
     this.drawNum = 0;
   }
 
-  putCard(card) {
+  putCard(card: Card | null): void {
     if(card == null) return;
     card.handleCard(this);
     this.fieldCards.push(card);
   }
 
-  nextTurn(card) {
+  nextTurn(card: Card | null): void {
     this.turn++;
     if(this.currentPlayer.cardCount === 0) this.finishPlayer(this.currentPlayer);
     this.nextPlayerIndex(card?.step || 1);
   }
 
-  commitWithSingleChance() {
+  commitWithSingleChance(): Card | null {
     return this.currentPlayer.putCard(this);
   }
 
-  commitWithDoubleChance() {
+  commitWithDoubleChance(): Card | null {
     const firstCard = this.currentPlayer.putCard(this);
     if(firstCard != null) return firstCard;
     this.currentPlayer.getCard(this.draw());
     return this.currentPlayer.putCard(this);
   }
 
-  setUpField() {
+  setUpField(): void {
     this.finishedPlayers = [];
     // shuffle Players
     this.players = this.players.sort(() => Math.random() - 0.5);
@@ -115,13 +119,13 @@ class Stage {
     this.putCard(firstCard);
   }
 
-  drawFirstCard() {
+  drawFirstCard(): Card {
     const firstCard = this.draw();
-    if(firstCard.num == null) return this.drawFirstCard();
+    if((firstCard as any).num == null) return this.drawFirstCard();
     return firstCard;
   }
 
-  playTurn() {
+  playTurn(): void {
     console.log('play turn');
     console.log(
       {
@@ -134,7 +138,7 @@ class Stage {
         num: this.num,
       }
     )
-    let card = null;
+    let card: Card | null = null;
     if(this.drawNum > 0) {
       card = this.commitWithSingleChance();
       // if (card != null) this.putCard(card);
@@ -144,7 +148,7 @@ class Stage {
       }
       else {
         console.log('draw card', this.drawNum);
-        this.drawNum.forEach(() => this.currentPlayer.getCard(this.draw()));
+        [...Array(this.drawNum)].forEach(() => this.currentPlayer.getCard(this.draw()));
         this.drawNum = 0;
       }
     } else {
@@ -160,18 +164,18 @@ class Stage {
     console.log('end turn');
   }
 
-  shouldEndField() {
+  shouldEndField(): boolean {
     return this.finishedPlayers.length === this.players.length - 1;
   }
 
-  getResult() {
+  getResult(): {winner: Player; looser: Player} {
     return {
       winner: this.finishedPlayers[0],
       looser: this.playablePlayers[0],
     };
   }
 
-  play() {
+  play(): {winner: Player; looser: Player} {
     this.setUpField();
     while(!this.shouldEndField()) {
       this.playTurn();

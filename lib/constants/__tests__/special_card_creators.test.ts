@@ -35,7 +35,7 @@ describe('specialCardCreators', () => {
       const reverseCard = specialCardCreators.find(creator => {
         const card = creator();
         return card.symbol === 'reverse';
-      })();
+      })!();
 
       expect(reverseCard.symbol).toBe('reverse');
       expect(reverseCard.step).toBe(2);
@@ -59,7 +59,7 @@ describe('specialCardCreators', () => {
       const skipCard = specialCardCreators.find(creator => {
         const card = creator();
         return card.symbol === 'skip';
-      })();
+      })!();
 
       expect(skipCard.symbol).toBe('skip');
       expect(skipCard.step).toBe(1);
@@ -82,7 +82,7 @@ describe('specialCardCreators', () => {
       const draw2Card = specialCardCreators.find(creator => {
         const card = creator();
         return card.symbol === 'draw2';
-      })();
+      })!();
 
       expect(draw2Card.symbol).toBe('draw2');
       expect(draw2Card.step).toBe(1);
@@ -105,7 +105,7 @@ describe('specialCardCreators', () => {
       const wildCard = specialCardCreators.find(creator => {
         const card = creator();
         return card.symbol === 'wild';
-      })();
+      })!();
 
       expect(wildCard.symbol).toBe('wild');
       expect(wildCard.step).toBe(1);
@@ -129,7 +129,7 @@ describe('specialCardCreators', () => {
       const draw4Card = specialCardCreators.find(creator => {
         const card = creator();
         return card.symbol === 'draw4';
-      })();
+      })!();
 
       expect(draw4Card.symbol).toBe('draw4');
       expect(draw4Card.step).toBe(1);

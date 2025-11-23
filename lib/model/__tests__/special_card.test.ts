@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import SpecialCard from '../special_card.js';
 import Color from '../color.js';
+import Stage from '../stage.js';
 
 describe('SpecialCard', () => {
   const red = new Color({ name: 'red', code: '#ff0000' });
@@ -53,7 +54,7 @@ describe('SpecialCard', () => {
         drawNum: 0,
         color: red,
       });
-      const stage = { latestCard: fieldCard, drawNum: 0 };
+      const stage = { latestCard: fieldCard, drawNum: 0 } as unknown as Stage;
 
       expect(card.canPut(stage)).toBe(true);
     });
@@ -73,7 +74,7 @@ describe('SpecialCard', () => {
         drawNum: 0,
         color: blue,
       });
-      const stage = { latestCard: fieldCard, drawNum: 0 };
+      const stage = { latestCard: fieldCard, drawNum: 0 } as unknown as Stage;
 
       expect(card.canPut(stage)).toBe(true);
     });
@@ -93,7 +94,7 @@ describe('SpecialCard', () => {
         drawNum: 0,
         color: red,
       });
-      const stage = { latestCard: fieldCard, drawNum: 0 };
+      const stage = { latestCard: fieldCard, drawNum: 0 } as unknown as Stage;
 
       expect(card.canPut(stage)).toBe(true);
     });
@@ -113,7 +114,7 @@ describe('SpecialCard', () => {
         drawNum: 0,
         color: blue,
       });
-      const stage = { latestCard: fieldCard, drawNum: 0 };
+      const stage = { latestCard: fieldCard, drawNum: 0 } as unknown as Stage;
 
       expect(card.canPut(stage)).toBe(false);
     });
@@ -133,7 +134,7 @@ describe('SpecialCard', () => {
         drawNum: 2,
         color: blue,
       });
-      const stage = { latestCard: fieldCard, drawNum: 2 };
+      const stage = { latestCard: fieldCard, drawNum: 2 } as unknown as Stage;
 
       expect(card.canPut(stage)).toBe(true);
     });
@@ -153,7 +154,7 @@ describe('SpecialCard', () => {
         drawNum: 2,
         color: red,
       });
-      const stage = { latestCard: fieldCard, drawNum: 2 };
+      const stage = { latestCard: fieldCard, drawNum: 2 } as unknown as Stage;
 
       expect(card.canPut(stage)).toBe(false);
     });
@@ -172,15 +173,15 @@ describe('SpecialCard', () => {
       });
       const stage = {
         drawNum: 0,
-        setColor: (color) => { stage.color = color; },
-        setNum: (num) => { stage.num = num; },
-        addDrawNum: (num) => { stage.drawNum += num; },
-      };
+        setColor: (color: Color | null) => { (stage as any).color = color; },
+        setNum: (num: number | null) => { (stage as any).num = num; },
+        addDrawNum: (num: number) => { stage.drawNum += num; },
+      } as any as Stage;
 
       card.handleCard(stage);
 
-      expect(stage.color).toBe(red);
-      expect(stage.num).toBe(null);
+      expect((stage as any).color).toBe(red);
+      expect((stage as any).num).toBe(null);
       expect(stage.drawNum).toBe(2);
       expect(effectMock).toHaveBeenCalledWith(stage);
     });
@@ -197,15 +198,15 @@ describe('SpecialCard', () => {
       });
       const stage = {
         drawNum: 0,
-        setColor: (color) => { stage.color = color; },
-        setNum: (num) => { stage.num = num; },
-        addDrawNum: (num) => { stage.drawNum += num; },
-      };
+        setColor: (color: Color | null) => { (stage as any).color = color; },
+        setNum: (num: number | null) => { (stage as any).num = num; },
+        addDrawNum: (num: number) => { stage.drawNum += num; },
+      } as any as Stage;
 
       card.handleCard(stage);
 
-      expect(stage.color).toBe(null);
-      expect(stage.num).toBe(null);
+      expect((stage as any).color).toBe(null);
+      expect((stage as any).num).toBe(null);
       expect(stage.drawNum).toBe(0);
       expect(effectMock).toHaveBeenCalledWith(stage);
     });

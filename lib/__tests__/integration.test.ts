@@ -6,8 +6,8 @@ import SpecialCard from '../model/special_card.js';
 import Color from '../model/color.js';
 
 describe('UNO Game Integration Tests', () => {
-  let stage;
-  let players;
+  let stage: Stage;
+  let players: Player[];
 
   beforeEach(() => {
     players = [
@@ -32,7 +32,7 @@ describe('UNO Game Integration Tests', () => {
       expect(stage.fieldCards.length).toBeGreaterThan(0);
 
       // First card should be a number card
-      expect(stage.latestCard.num).not.toBeNull();
+      expect((stage.latestCard as any).num).not.toBeNull();
     });
 
     it('should complete a full game and determine a winner', () => {
@@ -406,7 +406,7 @@ describe('UNO Game Integration Tests', () => {
       // Run multiple times to ensure consistency
       for (let i = 0; i < 10; i++) {
         const firstCard = stage.drawFirstCard();
-        expect(firstCard.num).not.toBeNull();
+        expect((firstCard as any).num).not.toBeNull();
       }
     });
 

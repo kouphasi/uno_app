@@ -39,7 +39,7 @@ describe('cardCreators', () => {
         .map(creator => creator())
         .filter(card => card instanceof NumCard);
 
-      const colors = new Set(numCards.map(card => card.color.name));
+      const colors = new Set(numCards.map(card => (card as NumCard).color.name));
       expect(colors.size).toBe(4);
       expect(colors.has('red')).toBe(true);
       expect(colors.has('green')).toBe(true);
@@ -52,7 +52,7 @@ describe('cardCreators', () => {
         .map(creator => creator())
         .filter(card => card instanceof NumCard);
 
-      const numbers = new Set(numCards.map(card => card.num));
+      const numbers = new Set(numCards.map(card => (card as NumCard).num));
       expect(numbers.size).toBe(10);
 
       for (let i = 0; i < 10; i++) {
@@ -65,9 +65,10 @@ describe('cardCreators', () => {
         .map(creator => creator())
         .filter(card => card instanceof NumCard);
 
-      const colorCounts = {};
+      const colorCounts: Record<string, number> = {};
       numCards.forEach(card => {
-        colorCounts[card.color.name] = (colorCounts[card.color.name] || 0) + 1;
+        const colorName = (card as NumCard).color.name;
+        colorCounts[colorName] = (colorCounts[colorName] || 0) + 1;
       });
 
       expect(colorCounts.red).toBe(10);
@@ -90,7 +91,7 @@ describe('cardCreators', () => {
     it('should include reverse cards', () => {
       const reverseCards = cardCreators
         .map(creator => creator())
-        .filter(card => card instanceof SpecialCard && card.symbol === 'reverse');
+        .filter(card => card instanceof SpecialCard && (card as SpecialCard).symbol === 'reverse');
 
       expect(reverseCards.length).toBe(4);
     });
@@ -98,7 +99,7 @@ describe('cardCreators', () => {
     it('should include skip cards', () => {
       const skipCards = cardCreators
         .map(creator => creator())
-        .filter(card => card instanceof SpecialCard && card.symbol === 'skip');
+        .filter(card => card instanceof SpecialCard && (card as SpecialCard).symbol === 'skip');
 
       expect(skipCards.length).toBe(4);
     });
@@ -106,7 +107,7 @@ describe('cardCreators', () => {
     it('should include draw2 cards', () => {
       const draw2Cards = cardCreators
         .map(creator => creator())
-        .filter(card => card instanceof SpecialCard && card.symbol === 'draw2');
+        .filter(card => card instanceof SpecialCard && (card as SpecialCard).symbol === 'draw2');
 
       expect(draw2Cards.length).toBe(4);
     });
@@ -114,7 +115,7 @@ describe('cardCreators', () => {
     it('should include wild card', () => {
       const wildCards = cardCreators
         .map(creator => creator())
-        .filter(card => card instanceof SpecialCard && card.symbol === 'wild');
+        .filter(card => card instanceof SpecialCard && (card as SpecialCard).symbol === 'wild');
 
       expect(wildCards.length).toBe(1);
     });
@@ -122,7 +123,7 @@ describe('cardCreators', () => {
     it('should include draw4 card', () => {
       const draw4Cards = cardCreators
         .map(creator => creator())
-        .filter(card => card instanceof SpecialCard && card.symbol === 'draw4');
+        .filter(card => card instanceof SpecialCard && (card as SpecialCard).symbol === 'draw4');
 
       expect(draw4Cards.length).toBe(1);
     });

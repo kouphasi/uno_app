@@ -3,10 +3,11 @@ import Stage from '../stage.js';
 import Player from '../player.js';
 import NumCard from '../num_card.js';
 import Color from '../color.js';
+import Card from '../card.js';
 
 describe('Stage', () => {
-  let stage;
-  let player1, player2, player3;
+  let stage: Stage;
+  let player1: Player, player2: Player, player3: Player;
   const red = new Color({ name: 'red', code: '#ff0000' });
   const blue = new Color({ name: 'blue', code: '#0000ff' });
 
@@ -186,24 +187,24 @@ describe('Stage', () => {
   describe('nextTurn', () => {
     it('should increment turn counter', () => {
       expect(stage.turn).toBe(1);
-      stage.nextTurn();
+      stage.nextTurn(null);
       expect(stage.turn).toBe(2);
     });
 
     it('should finish player if they have no cards', () => {
       player1.cards = [];
-      stage.nextTurn();
+      stage.nextTurn(null);
       expect(stage.finishedPlayers).toContain(player1);
     });
 
     it('should advance to next player', () => {
       expect(stage.currentPlayerIndex).toBe(0);
-      stage.nextTurn();
+      stage.nextTurn(null);
       expect(stage.currentPlayerIndex).toBe(1);
     });
 
     it('should use card step for advancement', () => {
-      const card = { step: 2 };
+      const card = { step: 2 } as Card;
       stage.currentPlayerIndex = 0;
       stage.nextTurn(card);
       expect(stage.currentPlayerIndex).toBe(2);
@@ -249,12 +250,12 @@ describe('Stage', () => {
       vi.spyOn(stage, 'draw').mockReturnValue(numCard);
 
       const card = stage.drawFirstCard();
-      expect(card.num).toBeDefined();
-      expect(card.num).not.toBe(null);
+      expect((card as any).num).toBeDefined();
+      expect((card as any).num).not.toBe(null);
     });
 
     it('should keep drawing until a number card is found', () => {
-      const specialCard = { num: null };
+      const specialCard = { num: null } as any as Card;
       const numCard = new NumCard({ name: 'red5', num: 5, color: red });
 
       const drawSpy = vi.spyOn(stage, 'draw')
