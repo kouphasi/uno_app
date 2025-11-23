@@ -7,6 +7,4 @@ const colors = [
   new Color({name: 'yellow', code: '#ffff00'}),
 ];
 
-console.log(colors);
-
 export default colors;

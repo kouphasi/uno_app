@@ -56,7 +56,6 @@ class Stage {
   }
 
   draw(): Card {
-    console.log('draw');
     return cardCreators[Math.floor(Math.random() * cardCreators.length)]();
   }
 
@@ -126,34 +125,18 @@ class Stage {
   }
 
   playTurn(): void {
-    console.log('play turn');
-    console.log(
-      {
-        turn: this.turn,
-        card: this.latestCard.name,
-        player: this.currentPlayer.name,
-        player_card: this.currentPlayer.cards.map(card => card.name),
-        finishedPlayers: this.finishedPlayers,
-        color: this.color,
-        num: this.num,
-      }
-    )
     let card: Card | null = null;
     if(this.drawNum > 0) {
       card = this.commitWithSingleChance();
-      // if (card != null) this.putCard(card);
       if (card != null) {
-        console.log('put card', card);
         this.putCard(card);
       }
       else {
-        console.log('draw card', this.drawNum);
         [...Array(this.drawNum)].forEach(() => this.currentPlayer.getCard(this.draw()));
         this.drawNum = 0;
       }
     } else {
       card = this.commitWithDoubleChance();
-      console.log('put card', card);
       this.putCard(card);
     }
     if((this.previousPlayer.cardCount == 1 && !this.previousPlayer.isUno) || (this.previousPlayer.cardCount > 1 && this.previousPlayer.isUno)) {
@@ -161,7 +144,6 @@ class Stage {
       this.previousPlayer.getCard(this.draw());
     }
     this.nextTurn(card);
-    console.log('end turn');
   }
 
   shouldEndField(): boolean {
