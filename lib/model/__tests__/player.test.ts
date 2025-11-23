@@ -2,9 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Player from '../player.js';
 import NumCard from '../num_card.js';
 import Color from '../color.js';
+import Stage from '../stage.js';
 
 describe('Player', () => {
-  let player;
+  let player: Player;
   const red = new Color({ name: 'red', code: '#ff0000' });
   const blue = new Color({ name: 'blue', code: '#0000ff' });
 
@@ -125,7 +126,7 @@ describe('Player', () => {
       player.cards = [card1, card2, card3];
 
       const fieldCard = new NumCard({ name: 'red2', num: 2, color: red });
-      const stage = { latestCard: fieldCard, drawNum: 0 };
+      const stage = { latestCard: fieldCard, drawNum: 0 } as unknown as Stage;
 
       const canPut = player.canPutCards(stage);
 
@@ -142,7 +143,7 @@ describe('Player', () => {
       player.cards = [card];
 
       const fieldCard = new NumCard({ name: 'red5', num: 5, color: red });
-      const stage = { latestCard: fieldCard, drawNum: 0 };
+      const stage = { latestCard: fieldCard, drawNum: 0 } as unknown as Stage;
 
       const selected = player.selectCard(stage);
 
@@ -155,7 +156,7 @@ describe('Player', () => {
       player.cards = [card1, card2];
 
       const fieldCard = new NumCard({ name: 'red2', num: 2, color: red });
-      const stage = { latestCard: fieldCard, drawNum: 0 };
+      const stage = { latestCard: fieldCard, drawNum: 0 } as unknown as Stage;
 
       const selected = player.selectCard(stage);
 
@@ -170,7 +171,7 @@ describe('Player', () => {
       player.isUno = false;
 
       const fieldCard = new NumCard({ name: 'red2', num: 2, color: red });
-      const stage = { latestCard: fieldCard, drawNum: 0 };
+      const stage = { latestCard: fieldCard, drawNum: 0 } as unknown as Stage;
 
       const sayUnoSpy = vi.spyOn(player, 'sayUno');
       player.selectCard(stage);
@@ -200,7 +201,7 @@ describe('Player', () => {
       player.cards = [card1, card2];
 
       const fieldCard = new NumCard({ name: 'red2', num: 2, color: red });
-      const stage = { latestCard: fieldCard, drawNum: 0 };
+      const stage = { latestCard: fieldCard, drawNum: 0 } as unknown as Stage;
 
       const putCard = player.putCard(stage);
 
@@ -217,7 +218,7 @@ describe('Player', () => {
       player.cards = [card];
 
       const fieldCard = new NumCard({ name: 'red5', num: 5, color: red });
-      const stage = { latestCard: fieldCard, drawNum: 0 };
+      const stage = { latestCard: fieldCard, drawNum: 0 } as unknown as Stage;
 
       const putCard = player.putCard(stage);
 
