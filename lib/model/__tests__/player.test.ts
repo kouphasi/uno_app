@@ -59,33 +59,26 @@ describe('Player', () => {
 
   describe('getCard', () => {
     it('should add a single card to player hand', () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
       const card = new NumCard({ name: 'red5', num: 5, color: red });
 
       player.getCard(card);
 
       expect(player.cards.length).toBe(1);
       expect(player.cards[0]).toBe(card);
-      expect(consoleSpy).toHaveBeenCalledWith('TestPlayer got red5');
-      consoleSpy.mockRestore();
     });
 
     it('should set isUno to false when getting a card', () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
       player.isUno = true;
       const card = new NumCard({ name: 'red5', num: 5, color: red });
 
       player.getCard(card);
 
       expect(player.isUno).toBe(false);
-      consoleSpy.mockRestore();
     });
   });
 
   describe('sayUno', () => {
     it('should randomly set isUno', () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-
       // Test multiple times to ensure randomness is working
       let hasTrue = false;
       let hasFalse = false;
@@ -100,19 +93,15 @@ describe('Player', () => {
 
       // At least one of them should have been set (statistically very likely)
       expect(hasTrue || hasFalse).toBe(true);
-      consoleSpy.mockRestore();
     });
 
-    it('should log when player says UNO', () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    it('should set isUno based on random value', () => {
       vi.spyOn(Math, 'random').mockReturnValue(0.3); // Forces isUno = true
 
       player.sayUno();
 
       expect(player.isUno).toBe(true);
-      expect(consoleSpy).toHaveBeenCalledWith('TestPlayer said UNO!');
 
-      consoleSpy.mockRestore();
       vi.restoreAllMocks();
     });
   });

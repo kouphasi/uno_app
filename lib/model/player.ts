@@ -21,16 +21,12 @@ class Player {
   }
 
   getCard(card: Card): void {
-    console.log(`${this.name} got ${card.name}`);
     this.cards.push(card);
     this.isUno = false;
   }
 
   sayUno(): void {
     this.isUno = Math.random() < 0.5;
-    if(this.isUno) {
-      console.log(`${this.name} said UNO!`);
-    }
   }
 
   canPutCards(stage: Stage): Card[] {
@@ -55,7 +51,6 @@ class Player {
 
   putCard(stage: Stage): Card | null {
     const card = this.selectCard(stage);
-    console.log(`${this.name} put ${card?.name}`);
     if(card === null) {
       return null
     }
