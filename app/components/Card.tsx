@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { memo } from 'react';
 import { CardSymbol, CARD_IMAGE_PATHS } from '@/app/constants/game';
 
 interface CardProps {
@@ -18,7 +19,7 @@ interface CardProps {
   disabled?: boolean;
 }
 
-export default function Card({ card, onClick, size = 'medium', disabled = false }: CardProps) {
+function Card({ card, onClick, size = 'medium', disabled = false }: CardProps) {
   const getImagePath = (): string => {
     // Check for special cards first
     if (card.symbol === CardSymbol.SKIP) return CARD_IMAGE_PATHS[CardSymbol.SKIP];
@@ -88,3 +89,13 @@ export default function Card({ card, onClick, size = 'medium', disabled = false 
     </div>
   );
 }
+
+// Memoize the component to prevent unnecessary re-renders
+export default memo(Card, (prevProps, nextProps) => {
+  return (
+    prevProps.card.cardId === nextProps.card.cardId &&
+    prevProps.card.canPlay === nextProps.card.canPlay &&
+    prevProps.disabled === nextProps.disabled &&
+    prevProps.size === nextProps.size
+  );
+});

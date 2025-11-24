@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Card from '@/app/components/Card';
 import PlayerList from '@/app/components/PlayerList';
 import ColorPicker from '@/app/components/ColorPicker';
 import { POLLING_INTERVAL_MS, CardSymbol } from '@/app/constants/game';
+import { useWebSocket } from '@/app/hooks/useWebSocket';
 
 interface GameState {
   gameId: string;
@@ -41,7 +42,9 @@ export default function GameRoom() {
   const [actionLoading, setActionLoading] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [pendingCardId, setPendingCardId] = useState<string | null>(null);
+  const [wsEnabled, setWsEnabled] = useState(true);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const isFetchingRef = useRef(false);
 
   useEffect(() => {
     const storedPlayerId = localStorage.getItem('playerId');
@@ -58,6 +61,10 @@ export default function GameRoom() {
 
   const fetchGameState = useCallback(async (): Promise<boolean> => {
     if (!playerId) return false;
+
+    // Prevent concurrent fetches
+    if (isFetchingRef.current) return false;
+    isFetchingRef.current = true;
 
     try {
       const response = await fetch(`/api/games/${gameId}/state?playerId=${playerId}`);
@@ -78,8 +85,34 @@ export default function GameRoom() {
       return false;
     } finally {
       setLoading(false);
+      isFetchingRef.current = false;
     }
   }, [gameId, playerId]);
+
+  // WebSocket connection with fallback to polling
+  const { isConnected: wsConnected, connectionError: wsError } = useWebSocket({
+    gameId,
+    playerId,
+    onGameStateUpdate: () => {
+      // Fetch updated game state when WebSocket notifies of changes
+      fetchGameState();
+    },
+    onPlayerAction: (action, data) => {
+      console.log('Player action received:', action, data);
+      // Fetch updated game state on player actions
+      fetchGameState();
+    },
+    onConnect: () => {
+      console.log('WebSocket connected, disabling polling');
+      setWsEnabled(true);
+    },
+    onDisconnect: () => {
+      console.log('WebSocket disconnected, enabling polling fallback');
+      setWsEnabled(false);
+    },
+    autoReconnect: true,
+    maxReconnectAttempts: 5,
+  });
 
   useEffect(() => {
     if (!playerId) return;
@@ -87,11 +120,15 @@ export default function GameRoom() {
     // Initial fetch
     fetchGameState();
 
-    // Setup polling with ref to avoid recreating interval
+    // Setup polling as fallback when WebSocket is not connected
     if (pollingIntervalRef.current) {
       clearInterval(pollingIntervalRef.current);
     }
-    pollingIntervalRef.current = setInterval(fetchGameState, POLLING_INTERVAL_MS);
+
+    if (!wsConnected || !wsEnabled) {
+      // Use polling when WebSocket is not available
+      pollingIntervalRef.current = setInterval(fetchGameState, POLLING_INTERVAL_MS);
+    }
 
     return () => {
       if (pollingIntervalRef.current) {
@@ -99,7 +136,7 @@ export default function GameRoom() {
         pollingIntervalRef.current = null;
       }
     };
-  }, [playerId, fetchGameState]);
+  }, [playerId, wsConnected, wsEnabled, fetchGameState]);
 
   const handleStartGame = async () => {
     setActionLoading(true);
@@ -398,6 +435,24 @@ export default function GameRoom() {
           }}
         />
       )}
+
+      {/* WebSocket connection indicator */}
+      <div className="fixed top-4 right-4 z-50">
+        <div
+          className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center space-x-2 ${
+            wsConnected
+              ? 'bg-green-500 text-white'
+              : 'bg-yellow-500 text-white'
+          }`}
+        >
+          <div
+            className={`w-2 h-2 rounded-full ${
+              wsConnected ? 'bg-white animate-pulse' : 'bg-white'
+            }`}
+          />
+          <span>{wsConnected ? 'Live' : 'Polling'}</span>
+        </div>
+      </div>
 
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
