@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Card from '@/app/components/Card';
 import PlayerList from '@/app/components/PlayerList';
 import ColorPicker from '@/app/components/ColorPicker';
+import { POLLING_INTERVAL_MS, CardSymbol } from '@/app/constants/game';
 
 interface GameState {
   gameId: string;
@@ -40,6 +41,7 @@ export default function GameRoom() {
   const [actionLoading, setActionLoading] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [pendingCardId, setPendingCardId] = useState<string | null>(null);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const storedPlayerId = localStorage.getItem('playerId');
@@ -54,15 +56,15 @@ export default function GameRoom() {
     setPlayerName(storedPlayerName);
   }, [router]);
 
-  const fetchGameState = useCallback(async () => {
-    if (!playerId) return;
+  const fetchGameState = useCallback(async (): Promise<boolean> => {
+    if (!playerId) return false;
 
     try {
       const response = await fetch(`/api/games/${gameId}/state?playerId=${playerId}`);
       if (!response.ok) {
         if (response.status === 404) {
           setError('Game not found');
-          return;
+          return false;
         }
         throw new Error('Failed to fetch game state');
       }
@@ -70,8 +72,10 @@ export default function GameRoom() {
       const data = await response.json();
       setGameState(data);
       setError('');
+      return true;
     } catch (err: any) {
       setError(err.message);
+      return false;
     } finally {
       setLoading(false);
     }
@@ -80,10 +84,21 @@ export default function GameRoom() {
   useEffect(() => {
     if (!playerId) return;
 
+    // Initial fetch
     fetchGameState();
-    const interval = setInterval(fetchGameState, 2000);
 
-    return () => clearInterval(interval);
+    // Setup polling with ref to avoid recreating interval
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+    }
+    pollingIntervalRef.current = setInterval(fetchGameState, POLLING_INTERVAL_MS);
+
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+      }
+    };
   }, [playerId, fetchGameState]);
 
   const handleStartGame = async () => {
@@ -100,7 +115,10 @@ export default function GameRoom() {
         throw new Error(data.error?.message || 'Failed to start game');
       }
 
-      await fetchGameState();
+      const refreshSuccess = await fetchGameState();
+      if (!refreshSuccess) {
+        throw new Error('Failed to refresh game state after starting');
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -108,7 +126,7 @@ export default function GameRoom() {
     }
   };
 
-  const handlePlayCard = async (cardId: string, selectedColor?: string) => {
+  const handlePlayCard = useCallback(async (cardId: string, selectedColor?: string) => {
     setActionLoading(true);
     try {
       const response = await fetch(`/api/games/${gameId}/play`, {
@@ -122,28 +140,36 @@ export default function GameRoom() {
         throw new Error(data.error?.message || 'Failed to play card');
       }
 
-      await fetchGameState();
+      const refreshSuccess = await fetchGameState();
+      if (!refreshSuccess) {
+        throw new Error('Failed to refresh game state after playing card');
+      }
       setError('');
     } catch (err: any) {
       setError(err.message);
     } finally {
       setActionLoading(false);
     }
-  };
+  }, [gameId, playerId, fetchGameState]);
 
-  const handleCardClick = (card: any) => {
+  const isWildCard = useCallback((card: any): boolean => {
+    return card.name === CardSymbol.WILD ||
+           card.name === CardSymbol.DRAW4 ||
+           card.symbol === CardSymbol.WILD ||
+           card.symbol === CardSymbol.DRAW4;
+  }, []);
+
+  const handleCardClick = useCallback((card: any) => {
     if (!gameState?.isMyTurn || actionLoading) return;
     if (gameState.drawnCard) return;
 
-    const isWildCard = card.name === 'wild' || card.name === 'draw4' || card.symbol === 'wild' || card.symbol === 'draw4';
-
-    if (isWildCard) {
+    if (isWildCard(card)) {
       setPendingCardId(card.cardId);
       setShowColorPicker(true);
     } else {
       handlePlayCard(card.cardId);
     }
-  };
+  }, [gameState?.isMyTurn, gameState?.drawnCard, actionLoading, isWildCard, handlePlayCard]);
 
   const handleColorSelect = (color: string) => {
     if (pendingCardId) {
@@ -167,7 +193,10 @@ export default function GameRoom() {
         throw new Error(data.error?.message || 'Failed to draw card');
       }
 
-      await fetchGameState();
+      const refreshSuccess = await fetchGameState();
+      if (!refreshSuccess) {
+        throw new Error('Failed to refresh game state after drawing card');
+      }
       setError('');
     } catch (err: any) {
       setError(err.message);
@@ -179,12 +208,7 @@ export default function GameRoom() {
   const handlePlayDrawnCard = async () => {
     if (!gameState?.drawnCard) return;
 
-    const isWildCard = gameState.drawnCard.name === 'wild' ||
-                       gameState.drawnCard.name === 'draw4' ||
-                       gameState.drawnCard.symbol === 'wild' ||
-                       gameState.drawnCard.symbol === 'draw4';
-
-    if (isWildCard) {
+    if (isWildCard(gameState.drawnCard)) {
       setPendingCardId(gameState.drawnCard.cardId);
       setShowColorPicker(true);
       return;
@@ -203,7 +227,10 @@ export default function GameRoom() {
         throw new Error(data.error?.message || 'Failed to play drawn card');
       }
 
-      await fetchGameState();
+      const refreshSuccess = await fetchGameState();
+      if (!refreshSuccess) {
+        throw new Error('Failed to refresh game state after playing drawn card');
+      }
       setError('');
     } catch (err: any) {
       setError(err.message);
@@ -226,7 +253,10 @@ export default function GameRoom() {
         throw new Error(data.error?.message || 'Failed to pass');
       }
 
-      await fetchGameState();
+      const refreshSuccess = await fetchGameState();
+      if (!refreshSuccess) {
+        throw new Error('Failed to refresh game state after passing');
+      }
       setError('');
     } catch (err: any) {
       setError(err.message);
@@ -249,7 +279,10 @@ export default function GameRoom() {
         throw new Error(data.error?.message || 'Failed to declare UNO');
       }
 
-      await fetchGameState();
+      const refreshSuccess = await fetchGameState();
+      if (!refreshSuccess) {
+        throw new Error('Failed to refresh game state after UNO declaration');
+      }
       setError('');
     } catch (err: any) {
       setError(err.message);

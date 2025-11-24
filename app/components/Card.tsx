@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { CardSymbol, CARD_IMAGE_PATHS } from '@/app/constants/game';
 
 interface CardProps {
   card: {
@@ -18,14 +19,23 @@ interface CardProps {
 }
 
 export default function Card({ card, onClick, size = 'medium', disabled = false }: CardProps) {
-  const getImagePath = () => {
-    if (card.symbol === 'skip') return '/cards/skip-card.png';
-    if (card.symbol === 'reverse') return '/cards/skip2-card.png';
-    if (card.symbol === 'draw2') return '/cards/draw2-card.png';
-    if (card.symbol === 'wild' || card.name === 'wild') return '/cards/wild-card.png';
-    if (card.symbol === 'draw4' || card.name === 'draw4') return '/cards/draw4-card.png';
+  const getImagePath = (): string => {
+    // Check for special cards first
+    if (card.symbol === CardSymbol.SKIP) return CARD_IMAGE_PATHS[CardSymbol.SKIP];
+    if (card.symbol === CardSymbol.REVERSE) return CARD_IMAGE_PATHS[CardSymbol.REVERSE];
+    if (card.symbol === CardSymbol.DRAW2) return CARD_IMAGE_PATHS[CardSymbol.DRAW2];
+    if (card.symbol === CardSymbol.WILD || card.name === CardSymbol.WILD) {
+      return CARD_IMAGE_PATHS[CardSymbol.WILD];
+    }
+    if (card.symbol === CardSymbol.DRAW4 || card.name === CardSymbol.DRAW4) {
+      return CARD_IMAGE_PATHS[CardSymbol.DRAW4];
+    }
+
+    // Number cards
     if (card.num !== undefined) return `/cards/${card.num}-card.png`;
-    return '/cards/back.jpeg';
+
+    // Default back image
+    return CARD_IMAGE_PATHS.BACK;
   };
 
   const sizeClasses = {
@@ -37,6 +47,13 @@ export default function Card({ card, onClick, size = 'medium', disabled = false 
   const isClickable = onClick && !disabled;
   const canPlay = card.canPlay !== false;
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (isClickable && canPlay && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      onClick?.();
+    }
+  };
+
   return (
     <div
       className={`
@@ -47,6 +64,11 @@ export default function Card({ card, onClick, size = 'medium', disabled = false 
         ${disabled ? 'cursor-not-allowed opacity-50' : ''}
       `}
       onClick={isClickable && canPlay ? onClick : undefined}
+      onKeyDown={handleKeyDown}
+      role={isClickable ? 'button' : 'img'}
+      tabIndex={isClickable && canPlay ? 0 : -1}
+      aria-label={`${card.name} card${canPlay ? '' : ' (cannot play)'}`}
+      aria-disabled={!canPlay || disabled}
       style={{
         filter: card.color ? `drop-shadow(0 0 8px ${card.color.code}80)` : undefined,
       }}
