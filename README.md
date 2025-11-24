@@ -8,6 +8,10 @@
 # 依存関係のインストール
 npm install
 
+# 環境変数の設定
+cp .env.example .env.local
+# .env.localを編集してGoogle OAuth認証情報を設定
+
 # 開発サーバーの起動
 npm run dev
 
@@ -15,11 +19,23 @@ npm run dev
 npm test
 ```
 
+### Google OAuth 設定
+
+1. [Google Cloud Console](https://console.cloud.google.com/)にアクセス
+2. 新しいプロジェクトを作成（または既存のプロジェクトを選択）
+3. 「APIとサービス」→「認証情報」に移動
+4. 「OAuth 2.0 クライアントID」を作成
+   - アプリケーションの種類: Webアプリケーション
+   - 承認済みのリダイレクトURI: `http://localhost:3000/api/auth/callback/google`
+5. クライアントIDとクライアントシークレットを`.env.local`に設定
+6. AUTH_SECRETを生成: `openssl rand -base64 32`
+
 ## 概要
 
 - **最大8人**まで同時プレイ可能
 - **リアルタイム**でゲーム進行（現在はポーリング方式、将来的にWebSocket対応予定）
 - **プライバシー保護**: 各プレイヤーは自分の手札のみ閲覧可能
+- **Google認証**: Googleアカウントでログイン、カスタムニックネーム設定可能
 
 ## プロジェクト構造
 
@@ -74,6 +90,7 @@ uno_app/
 - TypeScript/JavaScript
 - Tailwind CSS
 - Vitest（テスト）
+- NextAuth.js（Google認証）
 
 ## ライセンス
 
