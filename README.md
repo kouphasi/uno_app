@@ -8,12 +8,41 @@
 # 依存関係のインストール
 npm install
 
+# 環境変数の設定
+cp .env.example .env.local
+# .env.localファイルを編集してAUTH_SECRETを設定
+# または以下のコマンドで自動生成:
+# echo "AUTH_SECRET=$(openssl rand -base64 32)" > .env.local
+
 # 開発サーバーの起動
 npm run dev
 
 # テストの実行
 npm test
 ```
+
+## 環境変数の設定
+
+このアプリケーションを実行するには、以下の環境変数が必要です:
+
+- `AUTH_SECRET`: 認証用のシークレットキー（必須）
+  - 開発環境: `.env.local`ファイルに設定
+  - 本番環境: デプロイ先のプラットフォームで環境変数として設定
+
+### ローカル開発環境のセットアップ
+
+```bash
+# .env.exampleをコピー
+cp .env.example .env.local
+
+# ランダムなシークレットキーを生成
+openssl rand -base64 32
+# 生成されたキーを.env.localのAUTH_SECRETに設定
+```
+
+### 本番環境のセットアップ
+
+デプロイ先のプラットフォーム（Vercel、AWS、etc.）で、`AUTH_SECRET`環境変数を設定してください。
 
 ## 概要
 
