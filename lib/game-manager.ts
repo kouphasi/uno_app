@@ -31,6 +31,35 @@ class GameManager {
     return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
+  // WebSocket broadcast helper
+  private broadcastGameState(gameId: string): void {
+    if (typeof global !== 'undefined' && (global as any).wsServer) {
+      const wsServer = (global as any).wsServer;
+      const game = this.getGame(gameId);
+      if (game && wsServer.hasConnections(gameId)) {
+        wsServer.broadcastToGame(gameId, {
+          type: 'game_state_update',
+          gameId,
+          timestamp: new Date().toISOString(),
+        });
+      }
+    }
+  }
+
+  private notifyPlayerAction(gameId: string, action: string, data: any): void {
+    if (typeof global !== 'undefined' && (global as any).wsServer) {
+      const wsServer = (global as any).wsServer;
+      if (wsServer.hasConnections(gameId)) {
+        wsServer.broadcastToGame(gameId, {
+          type: 'player_action',
+          action,
+          data,
+          timestamp: new Date().toISOString(),
+        });
+      }
+    }
+  }
+
   createGame(hostPlayerName: string, maxPlayers: number = 8): { gameId: string; playerId: string } {
     const gameId = this.generateId('game');
     const playerId = this.generateId('player');
@@ -87,6 +116,14 @@ class GameManager {
     });
     game.lastUpdate = new Date();
 
+    // Broadcast player joined
+    this.notifyPlayerAction(gameId, 'player_joined', {
+      playerId,
+      playerName,
+      position,
+    });
+    this.broadcastGameState(gameId);
+
     return { playerId, position };
   }
 
@@ -113,6 +150,13 @@ class GameManager {
     game.status = 'playing';
     game.startedAt = new Date();
     game.lastUpdate = new Date();
+
+    // Broadcast game started
+    this.notifyPlayerAction(gameId, 'game_started', {
+      status: 'playing',
+      startedAt: game.startedAt.toISOString(),
+    });
+    this.broadcastGameState(gameId);
   }
 
   getPlayerInfo(gameId: string, playerId: string): PlayerInfo | null {
@@ -199,6 +243,15 @@ class GameManager {
     }
 
     game.lastUpdate = new Date();
+
+    // Broadcast card played
+    this.notifyPlayerAction(gameId, 'card_played', {
+      playerId,
+      cardName: card.name,
+      selectedColor,
+    });
+    this.broadcastGameState(gameId);
+
     return card;
   }
 
@@ -248,6 +301,12 @@ class GameManager {
     const drawnCard = stage.draw();
     game.drawnCardByPlayer.set(playerId, drawnCard);
     game.lastUpdate = new Date();
+
+    // Broadcast card drawn
+    this.notifyPlayerAction(gameId, 'card_drawn', {
+      playerId,
+    });
+    this.broadcastGameState(gameId);
 
     return drawnCard;
   }
@@ -309,6 +368,15 @@ class GameManager {
     }
 
     game.lastUpdate = new Date();
+
+    // Broadcast drawn card played
+    this.notifyPlayerAction(gameId, 'drawn_card_played', {
+      playerId,
+      cardName: drawnCard.name,
+      selectedColor,
+    });
+    this.broadcastGameState(gameId);
+
     return drawnCard;
   }
 
@@ -344,6 +412,12 @@ class GameManager {
     // Move to next turn
     stage.nextTurn(null);
     game.lastUpdate = new Date();
+
+    // Broadcast turn passed
+    this.notifyPlayerAction(gameId, 'turn_passed', {
+      playerId,
+    });
+    this.broadcastGameState(gameId);
   }
 
   declareUno(gameId: string, playerId: string): void {
@@ -366,6 +440,13 @@ class GameManager {
 
     playerInfo.player.isUno = true;
     game.lastUpdate = new Date();
+
+    // Broadcast UNO declared
+    this.notifyPlayerAction(gameId, 'uno_declared', {
+      playerId,
+      playerName: playerInfo.playerName,
+    });
+    this.broadcastGameState(gameId);
   }
 
   challengeUno(gameId: string, playerId: string, targetPlayerId: string): number {
@@ -395,6 +476,15 @@ class GameManager {
     targetPlayerInfo.player.getCard(stage.draw());
     targetPlayerInfo.player.getCard(stage.draw());
     game.lastUpdate = new Date();
+
+    // Broadcast UNO challenge
+    this.notifyPlayerAction(gameId, 'uno_challenged', {
+      challengerId: playerId,
+      targetPlayerId,
+      targetPlayerName: targetPlayerInfo.playerName,
+      penaltyCards: 2,
+    });
+    this.broadcastGameState(gameId);
 
     return 2;
   }

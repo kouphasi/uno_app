@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 interface Player {
   playerId: string;
   playerName: string;
@@ -16,7 +18,7 @@ interface PlayerListProps {
   myPlayerId: string;
 }
 
-export default function PlayerList({ players, currentPlayer, myPlayerId }: PlayerListProps) {
+function PlayerList({ players, currentPlayer, myPlayerId }: PlayerListProps) {
   return (
     <div className="bg-white rounded-lg shadow-lg p-4">
       <h2 className="text-xl font-bold mb-4 text-gray-800">Players</h2>
@@ -67,3 +69,30 @@ export default function PlayerList({ players, currentPlayer, myPlayerId }: Playe
     </div>
   );
 }
+
+// Memoize the component to prevent unnecessary re-renders
+export default memo(PlayerList, (prevProps, nextProps) => {
+  // Deep comparison of players array
+  if (prevProps.players.length !== nextProps.players.length) return false;
+
+  for (let i = 0; i < prevProps.players.length; i++) {
+    const prevPlayer = prevProps.players[i];
+    const nextPlayer = nextProps.players[i];
+
+    if (
+      prevPlayer.playerId !== nextPlayer.playerId ||
+      prevPlayer.cardCount !== nextPlayer.cardCount ||
+      prevPlayer.isUno !== nextPlayer.isUno ||
+      prevPlayer.isFinished !== nextPlayer.isFinished
+    ) {
+      return false;
+    }
+  }
+
+  // Compare currentPlayer
+  if (prevProps.currentPlayer?.playerId !== nextProps.currentPlayer?.playerId) {
+    return false;
+  }
+
+  return prevProps.myPlayerId === nextProps.myPlayerId;
+});
